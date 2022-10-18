@@ -1,13 +1,19 @@
 -- VIEW ALL EMPLOYEES:
 -- THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
--- >>> QUESTION: HOW TO ACCESS MANAGER NAME
-SELECT employee.id AS 'Employee ID', employee.first_name AS 'First Name', employee.last_name AS 'Last Name', role.title AS 'Role', department.name AS 'Department', role.salary AS 'Salary'
-FROM employee
-JOIN role
-ON employee.role_id = role.id
-JOIN department
-ON role.department_id = department.id
-ORDER BY employee.id;
+SELECT e.id AS 'Employee ID', 
+    e.first_name AS 'First Name', 
+    e.last_name AS 'Last Name', 
+    role.title AS 'Role', 
+    department.name AS 'Department', 
+    role.salary AS 'Salary', 
+    CONCAT(m.first_name, " ", m.last_name) AS 'Manager'
+FROM employee AS e
+    LEFT JOIN employee as m ON e.manager_id = m.id 
+    JOIN role
+    ON e.role_id = role.id
+    JOIN department
+    ON department_id = department.id
+    ORDER BY e.id;
 
 -- ADD EMPLOYEE:
 -- THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
