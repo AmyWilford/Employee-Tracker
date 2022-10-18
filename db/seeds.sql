@@ -1,6 +1,6 @@
 INSERT INTO department(name)
 VALUES  ('Research'), 
-        ('Slaying'), 
+        ('Slayage'), 
         ('Maintenance'), 
         ('Consultants');
 

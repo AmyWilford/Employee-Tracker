@@ -26,11 +26,16 @@ const promptQuestions = () => {
             choices: [
                 'View All Employees', 
                 'Add Employee', 
-                'Update Employee Role', 
                 'View All Roles', 
+                'Update Employee Role', 
                 'Add Role', 
                 'View All Departments',
-                'Add Department'
+                'Add Department',
+                'Update Employee Managers', 
+                'View Employees by Manager', 
+                'View Employees by Department', 
+                'Delete Departments, Roles, & Employees',
+                'View Total Utilized Department Budget'
 ,             ]
         }
     ])
@@ -42,12 +47,12 @@ const promptQuestions = () => {
         if (choices === 'Add Employee') {
             // addEmployee();
         }
-        if (choices === 'Update Employee Role') {
-            // updateEmployeeRole()
-;        }
         if (choices === 'View All Roles') {
             // viewAllRoles();
         }
+        if (choices === 'Update Employee Role') {
+            // updateEmployeeRole()
+;        }
         if (choices === 'Add Role') {
             // addRole();
         }
@@ -57,11 +62,34 @@ const promptQuestions = () => {
         if (choices === 'Add Department') {
             // addDepartment();
         }
+        if (choices === 'View Employees by Manager') {
+            // viewEmployeeManager();
+        }
+        if (choices === 'Update Employee Managers') {
+            // updateEmployeeManager();
+        }
+        if (choices === 'View Employees by Department') {
+            // viewEmployeeDepartment();
+        }
+        if (choices === 'Remove Department') {
+            // removeDepartment();
+        }
+        if (choices === 'Remove Role') {
+            // removeRole();
+        }
+        if (choices === 'Remove Employee') {
+            // removeEmployee();
+        }
+        if (choices === 'View Total Utilized Department Budget') {
+            // viewDepartmentBudget();
+        }
+
     });
 };
 
 // THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
 let viewAllEmployees = ()=>{
+    const SQLquery = 
 
 };
 
@@ -93,5 +121,33 @@ let viewAllDepartments = () =>{
 
 //THEN I am prompted to enter the name of the department and that department is added to the database
 let addDepartment = () =>{
+
+};
+
+viewEmployeeManager = () =>{
+    
+}
+
+updateEmployeeManager = () => {
+
+};
+
+viewEmployeeDepartment = () => {
+
+};
+
+removeDepartment = () =>{
+
+};
+
+removeRole = () => {
+
+}
+
+removeEmployee = () => {
+
+}
+
+viewDepartmentBudget = () => {
 
 };
