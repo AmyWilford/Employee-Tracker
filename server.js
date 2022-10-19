@@ -90,15 +90,17 @@ const promptQuestions = () => {
             removeDepartment();
         }
         if (answer === 'Remove Role') {
-            // removeRole();
+            removeRole();
         }
         if (answer === 'Remove Employee') {
-            // removeEmployee();
+            removeEmployee();
         }
         if (answer === 'View Total Utilized Department Budget') {
             // viewDepartmentBudget();
         }
-
+        if(answer === 'Quit') {
+            // what to do ?
+        }
     });
 };
 
@@ -136,7 +138,7 @@ let viewAllEmployees = ()=>{
 let addEmployee = () =>{
 
     // Get all employees to make choice of employee manager
-    db.query(`Select * FROM employee`, (err, res) =>{
+    db.query(`SELECT * FROM employee`, (err, res) =>{
         if (err) throw err;
         let managerOptions = [];
         // loop through results of all employees and pull in firstname, lastname, and id > push inforamtion into array of manager options
@@ -332,7 +334,6 @@ let  addRole = () =>{
                 if (err) throw err;
                 console.log(`Succesfully add ${response.roleTitle}`);
                 promptQuestions();
-
             })
         })
     })
@@ -440,13 +441,40 @@ removeDepartment = () =>{
 
 };
 
-// removeRole = () => {
+removeRole = () => {
+let roleOptions= [];
+db.query(`SELECT * FROM role`, (err, res)=> {
+    if (err) throw err;
+    res.forEach(({title, id})=> {
+        roleOptions.push({
+            name: title, 
+            value: id
+        })
+    })
+    inquirer.prompt ([
+        {
+            type: 'list', 
+            message: 'Which role do you want to remove?',
+            name: 'roleToRemove',
+            choices: roleOptions
+        }
+    ])
+    .then(response => {
+        const SQLquery = `DELETE FROM role WHERE id = ?`;
+        db.query(SQLquery, [response.roleToRemove], (err, res)=>{
+            if (err) throw err;
+            console.log(`\n Succesfully removed ${response.roleToRemove} \n`);
+            promptQuestions();
+        })
+    })
+});
+    
+};
 
-// }
 
-// removeEmployee = () => {
+removeEmployee = () => {
 
-// }
+}
 
 // viewDepartmentBudget = () => {
 
