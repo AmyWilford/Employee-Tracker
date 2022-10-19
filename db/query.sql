@@ -19,7 +19,8 @@ FROM employee AS e
 -- THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
 -- >>> QUESTION: HOW TO ADD MANAGER?
 INSERT INTO employee (first_name, last_name, role)
-    VALUES
+    VALUES ()
+
 
 -- UPDATE EMPLOYEE ROLE:
 -- THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
@@ -45,3 +46,26 @@ ORDER BY role.id;
 
 -- ADD DEPARTMENT
 -- THEN I am prompted to enter the name of the department and that department is added to the database
+INSERT INTO department(name)
+VALUES  ('something');
+
+-- VIEW EMPLOYEES BY MANAGER
+
+
+-- VIEW EMPLOYEE DEPARTMENTS
+-- WHY DUPLICATIN DATA
+SELECT employee.last_name AS 'Last Name', 
+    employee.first_name AS 'First Name', 
+    department.name AS 'Department'
+    FROM employee 
+    JOIN role ON employee.role_id = role.id 
+    JOIN department ON role.department_id = department.id
+    ORDER BY employee.last_name;
+
+-- VIEW DEPARTMENT BUDGETS
+-- SELECT department_id AS 'Department ID',
+--     name AS 'Department',
+--     SUM(salary) AS 'BUDGET'
+--     FROM role
+--     JOIN department ON role.department_id = department.id;
+--     GROUP BY id;

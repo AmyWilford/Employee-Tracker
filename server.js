@@ -62,14 +62,15 @@ const promptQuestions = () => {
             // updateEmployeeRole()
 ;        }
         if (answer === 'Add Role') {
-            // addRole();
+            addRole();
         }
         if (answer === 'View All Departments') {
             viewAllDepartments();
         }
         if (answer === 'Add Department') {
-            // addDepartment();
+            addDepartment();
         }
+        // BONUS - OPTIONAL
         if (answer === 'View Employees by Manager') {
             // viewEmployeeManager();
         }
@@ -123,9 +124,49 @@ let viewAllEmployees = ()=>{
     });
 };
 
-//THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
+//THEN I am prompted to enter the employee’s first name, 
+// last name, role, and manager, and that employee is added 
+// to the database
 let addEmployee = () =>{
-
+    inquirer.prompt ([
+        {
+        type: 'input', 
+        message: 'Enter Employee First Name',
+        name: 'firstname',
+        validate: function(name) {
+            if (!firstname){
+                console.log('Please enter a first name')
+                return false;
+            }
+            return true;
+        }
+    },
+    {
+        type: 'input', 
+        message: 'Enter Employee Last Name',
+        name: 'lastname',
+        validate: function(name) {
+            if (!firstname){
+                console.log('Please enter a last name')
+                return false;
+            }
+            return true;
+        }
+    },
+    {
+        type: 'choices', 
+        message: 'What is the employees role?',
+        name: 'employee-role',
+        choices: ['Slayer', 'Watcher', 'Reearcher', 'Maintenance', 'Demon Consultant']
+    },
+    {
+        type: 'choices', 
+        message: 'Select employee manager. Select none if no manager',
+        name: 'employee-manager',
+        choices: ['Buffy Summers', 'Rupert Giles', 'Willow Rosenberg', 'Zander Harris', 'Anya Jenkins']
+    }        
+    ])
+    .then()
 };
 
 //THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
@@ -152,8 +193,59 @@ let viewAllRoles = () =>{
     });
 };
 
-//THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
+//THEN I am prompted to enter the name, salary, and department for the 
+// role and that role is added to the database
 let  addRole = () =>{
+    let departmentsArray =[];
+    let SQLquerydepartment = `SELECT * FROM department`;
+
+    db.query(SQLquerydepartment, (err,res) =>{
+        if (err) throw err;
+       res.forEach(department => {
+        let departmentObject = {
+            name: department.name, 
+            id: department.id
+        }
+        departmentsArray.push(departmentObject)
+       })
+       console.log(departmentsArray)
+
+    })
+
+    // inquirer.prompt [(
+    //     {
+    //         type: 'input', 
+    //         message: 'Enter New Role title',
+    //         name: 'roleTitle',
+    //         validate: function(roleTitle) {
+    //             if (!roleTitle){
+    //                 console.log('Please enter a role title')
+    //                 return false;
+    //             }
+    //             return true;
+    //         }
+    //     },
+    //     {
+    //         type: 'number',
+    //         message: 'Enter role salary', 
+    //         name: 'roleSalary', 
+    //         validate: function(roleSalary){
+    //             if (!roleSalary){
+    //                 console.log('Please enter a numeric salary')
+    //                 return false;
+    //             }
+    //             return true;
+    //         }
+    //     },
+    //     {
+    //         type: 'input', 
+    //         message: 'Enter New Role title',
+    //         name: 'roleTitle',
+    //         choices:[]
+    //     }
+    // )]
+
+
 
 };
 
@@ -177,33 +269,55 @@ let viewAllDepartments = () =>{
 
 //THEN I am prompted to enter the name of the department and that department is added to the database
 let addDepartment = () =>{
-
+    inquirer.prompt ([
+        {
+        type: 'input', 
+        message: 'Enter New Department Name',
+        name: 'deptName',
+        validate: function(deptName) {
+            if (!deptName){
+                console.log('Please enter a department name')
+                return false;
+            }
+            return true;
+        }
+    }
+    ])
+    .then(response => {
+        let SQLquery = `INSERT INTO department (name) VALUES (?)`;
+        let value = response.deptName
+        db.query(SQLquery, value, (err, res)=>{
+            if (err) throw err;
+            console.log(`Successfully inserted ${response.deptName} into database.`)
+            promptQuestions();
+        })
+    })
 };
 
-viewEmployeeManager = () =>{
+// viewEmployeeManager = () =>{
 
-}
+// }
 
-updateEmployeeManager = () => {
+// updateEmployeeManager = () => {
 
-};
+// };
 
-viewEmployeeDepartment = () => {
+// viewEmployeeDepartment = () => {
 
-};
+// };
 
-removeDepartment = () =>{
+// removeDepartment = () =>{
 
-};
+// };
 
-removeRole = () => {
+// removeRole = () => {
 
-}
+// }
 
-removeEmployee = () => {
+// removeEmployee = () => {
 
-}
+// }
 
-viewDepartmentBudget = () => {
+// viewDepartmentBudget = () => {
 
-};
+// };
