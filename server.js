@@ -1,7 +1,8 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
 const ctable = require('console.table');
-const { title } = require('process');
+const { title } = require('process'); //<this just appeared....
+const figlet = require('figlet');
 
 const db = mysql.createConnection(
     {
@@ -15,7 +16,15 @@ const db = mysql.createConnection(
 
 db.connect(err => {
     if(err) throw err;
-    promptQuestions();
+    figlet('\nScooby Gang: \n Team Tracker\n', function(err, data) {
+        if (err) {
+            console.log ('Something went wrong...');
+            console.dir(err);
+            return
+        }
+        console.log(data);
+        promptQuestions();
+    })
 })
 
 const promptQuestions = () => {
@@ -54,7 +63,7 @@ const promptQuestions = () => {
             viewAllRoles();
         }
         if (answer === 'Update Employee Role') {
-            // updateEmployeeRole()
+            updateEmployeeRole()
 ;        }
         if (answer === 'Add Role') {
             addRole();
@@ -67,13 +76,13 @@ const promptQuestions = () => {
         }
         // BONUS - OPTIONAL
         if (answer === 'View Employees by Manager') {
-            // viewEmployeeManager();
+            // viewManagerEmployees();
         }
         if (answer === 'Update Employee Managers') {
             // updateEmployeeManager();
         }
         if (answer === 'View Employees by Department') {
-            // viewEmployeeDepartment();
+            viewEmployeeDepartment();
         }
         if (answer === 'Remove Department') {
             // removeDepartment();
@@ -137,13 +146,6 @@ let addEmployee = () =>{
         })
         console.log(managerOptions);
 
-        // res.forEach(({first_name, last_name, id})=>{
-        //     managerOptions.push({
-        //         name: first_name + ' ' + last_name,
-        //         value: id
-        //     })
-        // })
-
         // Get all roles to make choice for employee role
         let roleOptions = [];
         db.query(`Select * FROM role`, (err, res) => {
@@ -195,7 +197,7 @@ let addEmployee = () =>{
         }        
         ])
         .then(response =>{
-            let SQLquery = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
+            const SQLquery = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
             db.query(SQLquery, [response.firstname, response.lastname, response.employeeRole, response.employeeManager], (err, res) =>{
                 if (err) throw err;
                 console.log(`\n Succesfully added ${response.firstname} ${response.lastname} to roster \n`)
@@ -208,7 +210,52 @@ let addEmployee = () =>{
 
 //THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
 let updateEmployeeRole = () =>{
+    db.query(`SELECT * FROM employee`, (err, res)=>{
+        if (err) throw err;
+        let employeeOptions =[];
+        res.forEach(({first_name, last_name, id})=>{
+            employeeOptions.push({
+                name: first_name + ' '+ last_name, 
+                value: id
+            });
+        });
+        console.log(employeeOptions);
+    db.query(`SELECT * FROM role`, (err, res)=> {
+        if (err) throw err;
+        let roleOptions = [];
+        res.forEach(({title, id})=>{
+            roleOptions.push({
+                name: title, 
+                value: id
+            });
+        });
+        console.log(roleOptions);
 
+        inquirer.prompt([
+            {
+                type: 'list', 
+                message: 'Which employee would you like to update?',
+                name: 'employee',
+                choices: employeeOptions
+            },
+            {
+                type: 'list', 
+                message: 'Specify the new role', 
+                name: 'role', 
+                choices: roleOptions
+            }
+
+        ])
+        .then(response =>{
+            const SQLquery = `UPDATE employee SET ? WHERE ?`;
+            db.query(SQLquery, [response.role, response.employee], (err, res)=>{
+                if(err) throw err;
+                console.log(`\n Succefully updated ${response.employee}'s role. They are now listed as a ${response.role}\n`)
+                promptQuestions();
+            })
+        })
+    })
+    })
 };
 
 // THEN I am presented with the job title, role id, the department that role belongs to, and the salary for that role
@@ -278,7 +325,7 @@ let  addRole = () =>{
             }
            ])
            .then(response =>{
-            let SQLquery = `INSERT INTO role (title, salary, department_id) VALUES(?,?,?)`;
+            const SQLquery = `INSERT INTO role (title, salary, department_id) VALUES(?,?,?)`;
             db.query(SQLquery, [response.roleTitle, response.roleSalary, response.department], (err, res) =>{
                 if (err) throw err;
                 console.log(`Succesfully add ${response.roleTitle}`);
@@ -324,7 +371,7 @@ let addDepartment = () =>{
     }
     ])
     .then(response => {
-        let SQLquery = `INSERT INTO department (name) VALUES (?)`;
+        const SQLquery = `INSERT INTO department (name) VALUES (?)`;
         let value = response.deptName
         db.query(SQLquery, value, (err, res)=>{
             if (err) throw err;
@@ -334,7 +381,7 @@ let addDepartment = () =>{
     })
 };
 
-// viewEmployeeManager = () =>{
+// viewManagerEmployee = () =>{
 
 // }
 
@@ -342,9 +389,23 @@ let addDepartment = () =>{
 
 // };
 
-// viewEmployeeDepartment = () => {
-
-// };
+viewEmployeeDepartment = () => {
+    const SQLquery = 
+    `SELECT employee.last_name AS 'Last Name', 
+        employee.first_name AS 'First Name', 
+        department.name AS 'Department'
+        FROM employee
+        JOIN role ON employee.role_id = role.id
+        JOIN department ON role.department_id = department.id
+        ORDER BY employee.last_name;
+        `;
+    db.query(SQLquery, (err, res)=>{
+        if (err) throw err;
+        console.log(`\n`);
+        console.table(res);
+        console.log(`\n`)
+    })
+};
 
 // removeDepartment = () =>{
 

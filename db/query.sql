@@ -34,7 +34,8 @@ ORDER BY role.id;
 
 -- ADD ROLES:
 -- THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
-
+INSERT INTO role (title, salary, department_id) 
+VALUES(?,?,?)
 
 -- VIEW ALL DEPARTMENTS
 -- THEN I am presented with a formatted table showing department names and department ids
@@ -51,19 +52,18 @@ VALUES  ('department');
 
 
 -- VIEW EMPLOYEE DEPARTMENTS
--- WHY DUPLICATIN DATA
 SELECT employee.last_name AS 'Last Name', 
     employee.first_name AS 'First Name', 
     department.name AS 'Department'
-    FROM employee 
-    JOIN role ON employee.role_id = role.id 
+    FROM employee
+    JOIN role ON employee.role_id = role.id
     JOIN department ON role.department_id = department.id
     ORDER BY employee.last_name;
 
+
 -- VIEW DEPARTMENT BUDGETS
 -- SELECT department_id AS 'Department ID',
---     name AS 'Department',
---     SUM(salary) AS 'BUDGET'
+--     SUM(salary) AS 'Total Salary Costs'
 --     FROM role
---     JOIN department ON role.department_id = department.id;
---     GROUP BY id;
+--     WHERE department name
+
