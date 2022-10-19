@@ -44,7 +44,9 @@ const promptQuestions = () => {
                 'Update Employee Managers', 
                 'View Employees by Manager', 
                 'View Employees by Department', 
-                'Delete Departments, Roles, & Employees',
+                'Remove Department',
+                'Remove Role', 
+                'Remove Employee',
                 'View Total Utilized Department Budget',
                 'Exit'
 ,             ]
@@ -85,7 +87,7 @@ const promptQuestions = () => {
             viewEmployeeDepartment();
         }
         if (answer === 'Remove Department') {
-            // removeDepartment();
+            removeDepartment();
         }
         if (answer === 'Remove Role') {
             // removeRole();
@@ -407,9 +409,36 @@ viewEmployeeDepartment = () => {
     })
 };
 
-// removeDepartment = () =>{
+removeDepartment = () =>{
+    let departments =[];
+    db.query(`SELECT * FROM department`, (err, res)=>{
+        if (err) throw err;
 
-// };
+        res.forEach(department =>{
+            let departmentObject = {
+                name: department.name,
+                value: department.id
+            }
+            departments.push(departmentObject)
+        })
+
+        inquirer.prompt ({
+            type: 'list', 
+            message: 'Which department do you want to remove?',
+            name: 'deptToRemove',
+            choices: departments
+        })
+        .then(response => {
+            const SQLquery = `DELETE FROM department WHERE id = ?`;
+            db.query(SQLquery, [response.deptToRemove], (err, res)=>{
+                if (err) throw err;
+                console.log(`Succesfully removed ${response.deptToRemove}`);
+                promptQuestions();
+            })
+        })
+    })
+
+};
 
 // removeRole = () => {
 
