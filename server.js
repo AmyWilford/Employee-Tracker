@@ -1,12 +1,7 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
 const ctable = require('console.table');
-
-let values = [
-    ['this', 20], 
-    ['that', 30]
-];
-console.table(values);
+const { title } = require('process');
 
 const db = mysql.createConnection(
     {
@@ -53,7 +48,7 @@ const promptQuestions = () => {
             viewAllEmployees();
         }
         if (answer === 'Add Employee') {
-            // addEmployee();
+            addEmployee();
         }
         if (answer === 'View All Roles') {
             viewAllRoles();
@@ -128,45 +123,87 @@ let viewAllEmployees = ()=>{
 // last name, role, and manager, and that employee is added 
 // to the database
 let addEmployee = () =>{
-    inquirer.prompt ([
+
+    // Get all employees to make choice of employee manager
+    db.query(`Select * FROM employee`, (err, res) =>{
+        if (err) throw err;
+        let managerOptions = [];
+        // loop through results of all employees and pull in firstname, lastname, and id > push inforamtion into array of manager options
+        res.forEach(({first_name, last_name, id}) =>{
+            managerOptions.push ( {
+                name: first_name + ' ' + last_name, 
+                value: id
+            })
+        })
+        console.log(managerOptions);
+
+        // res.forEach(({first_name, last_name, id})=>{
+        //     managerOptions.push({
+        //         name: first_name + ' ' + last_name,
+        //         value: id
+        //     })
+        // })
+
+        // Get all roles to make choice for employee role
+        let roleOptions = [];
+        db.query(`Select * FROM role`, (err, res) => {
+            if (err) throw err;
+            res.forEach(({title, id})=>{
+                roleOptions.push({
+                    name: title, 
+                    value: id
+                });
+            })
+            
+        });
+        inquirer.prompt ([
+            {
+            type: 'input', 
+            message: 'Enter Employee First Name',
+            name: 'firstname',
+            validate: function(firstname) {
+                if (!firstname){
+                    console.log('Please enter a first name')
+                    return false;
+                }
+                return true;
+            }
+        },
         {
-        type: 'input', 
-        message: 'Enter Employee First Name',
-        name: 'firstname',
-        validate: function(name) {
-            if (!firstname){
-                console.log('Please enter a first name')
-                return false;
+            type: 'input', 
+            message: 'Enter Employee Last Name',
+            name: 'lastname',
+            validate: function(lastname) {
+                if (!lastname){
+                    console.log('Please enter a last name')
+                    return false;
+                }
+                return true;
             }
-            return true;
-        }
-    },
-    {
-        type: 'input', 
-        message: 'Enter Employee Last Name',
-        name: 'lastname',
-        validate: function(name) {
-            if (!firstname){
-                console.log('Please enter a last name')
-                return false;
-            }
-            return true;
-        }
-    },
-    {
-        type: 'choices', 
-        message: 'What is the employees role?',
-        name: 'employee-role',
-        choices: ['Slayer', 'Watcher', 'Reearcher', 'Maintenance', 'Demon Consultant']
-    },
-    {
-        type: 'choices', 
-        message: 'Select employee manager. Select none if no manager',
-        name: 'employee-manager',
-        choices: ['Buffy Summers', 'Rupert Giles', 'Willow Rosenberg', 'Zander Harris', 'Anya Jenkins']
-    }        
-    ])
-    .then()
+        },
+        {
+            type: 'list', 
+            message: 'What is the employees role?',
+            name: 'employeeRole',
+            choices: roleOptions
+        },
+        {
+            type: 'list', 
+            message: 'Select employee manager. Select none if no manager',
+            name: 'employeeManager',
+            choices: managerOptions
+        }        
+        ])
+        .then(response =>{
+            let SQLquery = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
+            db.query(SQLquery, [response.firstname, response.lastname, response.employeeRole, response.employeeManager], (err, res) =>{
+                if (err) throw err;
+                console.log(`\n Succesfully added ${response.firstname} ${response.lastname} to roster \n`)
+                promptQuestions();
+            });
+        });
+    });
+  
 };
 
 //THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
