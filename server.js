@@ -196,57 +196,60 @@ let viewAllRoles = () =>{
 //THEN I am prompted to enter the name, salary, and department for the 
 // role and that role is added to the database
 let  addRole = () =>{
-    let departmentsArray =[];
-    let SQLquerydepartment = `SELECT * FROM department`;
-
-    db.query(SQLquerydepartment, (err,res) =>{
+    let departments =[];
+    db.query(`SELECT * FROM department`, (err,res) =>{
         if (err) throw err;
-       res.forEach(department => {
-        let departmentObject = {
-            name: department.name, 
-            id: department.id
-        }
-        departmentsArray.push(departmentObject)
-       })
-       console.log(departmentsArray)
 
+        res.forEach(department => {
+            let departmentObject = {
+                name: department.name, 
+                value: department.id
+            }
+            departments.push(departmentObject)
+           })
+
+           inquirer.prompt ([
+                {
+                type: 'input', 
+                message: 'Enter New Role title',
+                name: 'roleTitle',
+                validate: function(roleTitle) {
+                    if (!roleTitle){
+                        console.log('Please enter a role title')
+                        return false;
+                    }
+                    return true;
+                }
+            },
+            {
+                type: 'number',
+                message: 'Enter role salary', 
+                name: 'roleSalary', 
+                validate: function(roleSalary){
+                    if (!roleSalary){
+                        console.log('Please enter a numeric salary')
+                        return false;
+                    }
+                    return true;
+                }
+            },
+            {
+                type: 'list', 
+                message: 'Which department does this role fall into?',
+                name: 'department',
+                choices: departments
+            }
+           ])
+           .then(response =>{
+            let SQLquery = `INSERT INTO role (title, salary, department_id) VALUES(?,?,?)`;
+            db.query(SQLquery, [response.roleTitle, response.roleSalary, response.department], (err, res) =>{
+                if (err) throw err;
+                console.log(`Succesfully add ${response.roleTitle}`);
+                promptQuestions();
+
+            })
+        })
     })
-
-    // inquirer.prompt [(
-    //     {
-    //         type: 'input', 
-    //         message: 'Enter New Role title',
-    //         name: 'roleTitle',
-    //         validate: function(roleTitle) {
-    //             if (!roleTitle){
-    //                 console.log('Please enter a role title')
-    //                 return false;
-    //             }
-    //             return true;
-    //         }
-    //     },
-    //     {
-    //         type: 'number',
-    //         message: 'Enter role salary', 
-    //         name: 'roleSalary', 
-    //         validate: function(roleSalary){
-    //             if (!roleSalary){
-    //                 console.log('Please enter a numeric salary')
-    //                 return false;
-    //             }
-    //             return true;
-    //         }
-    //     },
-    //     {
-    //         type: 'input', 
-    //         message: 'Enter New Role title',
-    //         name: 'roleTitle',
-    //         choices:[]
-    //     }
-    // )]
-
-
-
 };
 
 //THEN I am presented with a formatted table showing department names and department ids
