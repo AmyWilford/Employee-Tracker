@@ -42,8 +42,8 @@ const promptQuestions = () => {
           "Add Role",
           "View All Departments",
           "Add Department",
-          "Update Employee Managers",
-        //   "View Employees by Manager",
+        //   "Update Employee Managers",
+          "View Employees by Manager",
           "View Employees by Department",
           "Remove Department",
           "Remove Role",
@@ -410,11 +410,11 @@ let addDepartment = () => {
     });
 };
 
-viewManagerEmployee = () =>{
+viewManagerEmployees = () =>{
     const SQLquery = `
-    SELECT CONCAT(m.first_name, ' ', m.last_name) AS 'Manager',
-    CONCAT(e.first_name, ' ', e.last_name) AS 'Employee Name',
-    e.manager_id AS 'Manager ID'
+    SELECT e.manager_id AS 'Manager ID',
+    CONCAT(m.first_name, ' ', m.last_name) AS 'Manager',
+    CONCAT(e.first_name, ' ', e.last_name) AS 'Employee Name'
     FROM employee AS e
     LEFT JOIN employee as m ON e.manager_id = m.id
     JOIN role
