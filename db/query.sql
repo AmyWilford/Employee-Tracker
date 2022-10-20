@@ -1,3 +1,5 @@
+-- TEST SQL QUERIES
+
 -- VIEW ALL EMPLOYEES:
 SELECT e.id AS 'Employee ID', 
     e.first_name AS 'First Name', 

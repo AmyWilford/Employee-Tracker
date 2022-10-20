@@ -1,9 +1,11 @@
+// Import required NPM packages
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
 const ctable = require("console.table");
-// const { title } = require('process');
 const figlet = require("figlet");
+const { NONAME } = require("dns");
 
+// Establish database connection details
 const db = mysql.createConnection(
   {
     host: "localhost",
@@ -14,6 +16,7 @@ const db = mysql.createConnection(
   console.log("Connected to employee_db")
 );
 
+// Initial connection to database - launch figlet welcome message and launch userOptions()
 db.connect((err) => {
   if (err) throw err;
   figlet("\nScooby Gang: \n Team Tracker\n", function (err, data) {
@@ -23,11 +26,12 @@ db.connect((err) => {
       return;
     }
     console.log(data);
-    promptQuestions();
+    userOptions();
   });
 });
 
-const promptQuestions = () => {
+// Function to launch initial inquirer prompts listing user options
+const userOptions = () => {
   inquirer
     .prompt([
       {
@@ -36,55 +40,57 @@ const promptQuestions = () => {
         name: "options",
         choices: [
           "View All Employees",
-          "Add Employee",
-          "View All Roles",
-          "Update Employee Role",
-          "Add Role",
-          "View All Departments",
-          "Add Department",
-        //   "Update Employee Managers",
           "View Employees by Manager",
           "View Employees by Department",
+          "View All Departments",
+          "View All Roles",
+          "View Current Department Budget",
+          "Add Employee",
+          "Add Department",
+          "Add Role",
+          "Update Employee Role",
+          "Remove Employee",
           "Remove Department",
           "Remove Role",
-          "Remove Employee",
-          "View Current Department Budget",
           "Exit",
         ],
       },
     ])
     .then(function (response) {
       const answer = response.options;
-
+        // Run related function based on userOptions() response
       if (answer === "View All Employees") {
         viewAllEmployees();
-      }
-      if (answer === "Add Employee") {
-        addEmployee();
-      }
-      if (answer === "View All Roles") {
-        viewAllRoles();
-      }
-      if (answer === "Update Employee Role") {
-        updateEmployeeRole();
-      }
-      if (answer === "Add Role") {
-        addRole();
-      }
-      if (answer === "View All Departments") {
-        viewAllDepartments();
-      }
-      if (answer === "Add Department") {
-        addDepartment();
       }
       if (answer === "View Employees by Manager") {
         viewManagerEmployees();
       }
-      if (answer === "Update Employee Managers") {
-        // updateEmployeeManager();
-      }
       if (answer === "View Employees by Department") {
         viewEmployeeDepartment();
+      }
+      if (answer === "View All Departments") {
+        viewAllDepartments();
+      }
+      if (answer === "View All Roles") {
+        viewAllRoles();
+      }
+      if (answer === "View Current Department Budget") {
+        viewDepartmentBudget();
+      }
+      if (answer === "Add Employee") {
+        addEmployee();
+      }
+      if (answer === "Add Department") {
+        addDepartment();
+      }
+      if (answer === "Add Role") {
+        addRole();
+      }
+      if (answer === "Update Employee Role") {
+        updateEmployeeRole();
+      }
+      if (answer === "Remove Employee") {
+        removeEmployee();
       }
       if (answer === "Remove Department") {
         removeDepartment();
@@ -92,19 +98,13 @@ const promptQuestions = () => {
       if (answer === "Remove Role") {
         removeRole();
       }
-      if (answer === "Remove Employee") {
-        removeEmployee();
-      }
-      if (answer === "View Current Department Budget") {
-        viewDepartmentBudget();
-      }
       if (answer === "Quit") {
         quit();
       }
     });
 };
 
-// THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
+// Function to view all Employees
 let viewAllEmployees = () => {
   const SQLquery = `
     SELECT e.id AS 'Employee ID', 
@@ -125,35 +125,34 @@ let viewAllEmployees = () => {
 
   db.query(SQLquery, (err, res) => {
     if (err) throw err;
-    console.log("\n All Employees \n");
+    console.log("\nAll Employees: \n\n");
     console.table(res);
-    console.log("\n =================== \n");
-
-    promptQuestions();
+    userOptions();
   });
 };
 
-//THEN I am prompted to enter the employee’s first name,
-// last name, role, and manager, and that employee is added
-// to the database
+// Function to Add Employee to the database
 let addEmployee = () => {
   // Get all employees to make choice of employee manager
   db.query(`SELECT * FROM employee`, (err, res) => {
     if (err) throw err;
-    let managerOptions = [];
-    // loop through results of all employees and pull in firstname, lastname, and id > push inforamtion into array of manager options
+    let managerOptions = [{
+        name: 'none', 
+        value: 0
+    }];
+    // loop through results of all employees and push specified information into array of manager options
     res.forEach(({ first_name, last_name, id }) => {
       managerOptions.push({
         name: first_name + " " + last_name,
         value: id,
       });
     });
-    console.log(managerOptions);
 
     // Get all roles to make choice for employee role
     let roleOptions = [];
     db.query(`Select * FROM role`, (err, res) => {
       if (err) throw err;
+    // loop through results of roles and push specified information into role options array
       res.forEach(({ title, id }) => {
         roleOptions.push({
           name: title,
@@ -161,11 +160,13 @@ let addEmployee = () => {
         });
       });
     });
+
+    // Inquirer prompts to collect new employee information
     inquirer
       .prompt([
         {
           type: "input",
-          message: "Enter Employee First Name",
+          message: "Enter New Employee First Name",
           name: "firstname",
           validate: function (firstname) {
             if (!firstname) {
@@ -177,7 +178,7 @@ let addEmployee = () => {
         },
         {
           type: "input",
-          message: "Enter Employee Last Name",
+          message: "Enter New Employee Last Name",
           name: "lastname",
           validate: function (lastname) {
             if (!lastname) {
@@ -189,17 +190,18 @@ let addEmployee = () => {
         },
         {
           type: "list",
-          message: "What is the employees role?",
+          message: "What is the New Employee Role?",
           name: "employeeRole",
           choices: roleOptions,
         },
         {
           type: "list",
-          message: "Select employee manager. Select none if no manager",
+          message: "Select New Employee Manager. Select none if no manager",
           name: "employeeManager",
           choices: managerOptions,
         },
       ])
+    //   Once prompts are asked - take response and run SQLquery with defined values in array created of response
       .then((response) => {
         const SQLquery = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
         db.query(
@@ -215,15 +217,17 @@ let addEmployee = () => {
             console.log(
               `\n Succesfully added ${response.firstname} ${response.lastname} to roster \n`
             );
-            promptQuestions();
+            // Run userOptions() to go back to initial list of database options
+            userOptions();
           }
         );
       });
   });
 };
 
-//THEN I am prompted to select an employee to update and their new role and this information is updated in the database
+// Function to update Employee Role
 let updateEmployeeRole = () => {
+    // Query to get list of all employees and push in to an array of employee options to be used as inquirer list choices
   db.query(`SELECT * FROM employee`, (err, res) => {
     if (err) throw err;
     let employeeOptions = [];
@@ -233,7 +237,7 @@ let updateEmployeeRole = () => {
         value: id,
       });
     });
-    console.log(employeeOptions);
+    // Query to get list of all roles and push in to an array of role options to be used as inquirer list choices
     db.query(`SELECT * FROM role`, (err, res) => {
       if (err) throw err;
       let roleOptions = [];
@@ -243,8 +247,7 @@ let updateEmployeeRole = () => {
           value: id,
         });
       });
-      console.log(roleOptions);
-
+    // Inquirer prompts to collect new employee information
       inquirer
         .prompt([
           {
@@ -260,21 +263,23 @@ let updateEmployeeRole = () => {
             choices: roleOptions,
           },
         ])
+        //   Once prompts are asked - take response and run SQLquery with defined values in array created of response
         .then((response) => {
           const SQLquery = `UPDATE employee SET role_id= ? WHERE id=?`;
           db.query(SQLquery, [response.role, response.employee], (err, res) => {
             if (err) throw err;
             console.log(
-              `\n Succefully updated ${response.employee}'s role. They are now listed as a ${response.role}\n`
+              `\n Succefully updated role. ${res.affectedRows} record(s) updated.\n`
             );
-            promptQuestions();
+            // Run userOptions() to go back to initial list of database options
+            userOptions();
           });
         });
     });
   });
 };
 
-// THEN I am presented with the job title, role id, the department that role belongs to, and the salary for that role
+// Function to view all roles
 let viewAllRoles = () => {
   const SQLquery = `
     SELECT role.title AS 'Role', role.id AS 'Role ID', department.name AS 'Department', role.salary AS 'Salary'
@@ -286,16 +291,15 @@ let viewAllRoles = () => {
 
   db.query(SQLquery, (err, res) => {
     if (err) throw err;
-    console.log("\n All Roles \n");
+    console.log("\nAll Roles: \n");
     console.table(res);
-    console.log("\n =================== \n");
-    promptQuestions();
+    userOptions();
   });
 };
 
-//THEN I am prompted to enter the name, salary, and department for the
-// role and that role is added to the database
+// Function to add a role
 let addRole = () => {
+// SQL query to get all departments and push into an array of department options to be used in inquirer list choices
   let departments = [];
   db.query(`SELECT * FROM department`, (err, res) => {
     if (err) throw err;
@@ -307,16 +311,16 @@ let addRole = () => {
       };
       departments.push(departmentObject);
     });
-
+    // Inquirer prompts to specify role details tobe added
     inquirer
       .prompt([
         {
           type: "input",
-          message: "Enter New Role title",
+          message: "Enter New Position title",
           name: "roleTitle",
           validate: function (roleTitle) {
             if (!roleTitle) {
-              console.log("Please enter a role title");
+              console.log("Please enter a position title");
               return false;
             }
             return true;
@@ -324,7 +328,7 @@ let addRole = () => {
         },
         {
           type: "input",
-          message: "Enter role salary",
+          message: "Enter Position Salary",
           name: "roleSalary",
           validate: function (roleSalary) {
             if (isNaN(roleSalary)) {
@@ -343,11 +347,12 @@ let addRole = () => {
         },
         {
           type: "list",
-          message: "Which department does this role fall into?",
+          message: "Which Department Does This Position Fall Into?",
           name: "department",
           choices: departments,
         },
       ])
+    // Once questions are answered - take the response and run the specified SQL query using the values in the below response array
       .then((response) => {
         const SQLquery = `INSERT INTO role (title, salary, department_id) VALUES(?,?,?)`;
         db.query(
@@ -355,15 +360,15 @@ let addRole = () => {
           [response.roleTitle, response.roleSalary, response.department],
           (err, res) => {
             if (err) throw err;
-            console.log(`Succesfully add ${response.roleTitle}`);
-            promptQuestions();
+            console.log(`\nSuccesfully add ${response.roleTitle}\n`);
+            userOptions();
           }
         );
       });
   });
 };
 
-//THEN I am presented with a formatted table showing department names and department ids
+// Function to view all Departments
 let viewAllDepartments = () => {
   const SQLquery = `
     SELECT id AS 'Department ID', name AS 'Department'
@@ -373,15 +378,15 @@ let viewAllDepartments = () => {
 
   db.query(SQLquery, (err, res) => {
     if (err) throw err;
-    console.log("\n All Departments \n");
+    console.log("\nAll Departments \n");
     console.table(res);
-    console.log("\n =================== \n");
-    promptQuestions();
+    userOptions();
   });
 };
 
-//THEN I am prompted to enter the name of the department and that department is added to the database
+// Function to add a new Department
 let addDepartment = () => {
+    // Inquirer Prompts to collect details for new department
   inquirer
     .prompt([
       {
@@ -397,6 +402,7 @@ let addDepartment = () => {
         },
       },
     ])
+    // Using inquirer responses run SQL query to insert into department table using the response value
     .then((response) => {
       const SQLquery = `INSERT INTO department (name) VALUES (?)`;
       let value = response.deptName;
@@ -405,11 +411,13 @@ let addDepartment = () => {
         console.log(
           `Successfully inserted ${response.deptName} into database.`
         );
-        promptQuestions();
+        // Function to launch initial usuer Options
+        userOptions();
       });
     });
 };
 
+// Function to view all employees linked to each manager
 viewManagerEmployees = () =>{
     const SQLquery = `
     SELECT e.manager_id AS 'Manager ID',
@@ -427,14 +435,11 @@ viewManagerEmployees = () =>{
         console.log(`\n All Manager Employees`);
         console.table(res);
         console.log("\n =================== \n");
-        promptQuestions();
+        userOptions();
     })
 }
 
-// updateEmployeeManager = () => {
-
-// };
-
+// Function to view all employees under each department
 viewEmployeeDepartment = () => {
   const SQLquery = `
     SELECT  department.name AS 'Department', 
@@ -449,11 +454,13 @@ viewEmployeeDepartment = () => {
     console.log(`\n Department Employees`);
     console.table(res);
     console.log("\n =================== \n");
-    promptQuestions();
+    userOptions();
   });
 };
 
+// Function to remove a department
 removeDepartment = () => {
+    // Run a query to get a full list of departments and push into an array to be used for inquirer list choices
   let departments = [];
   db.query(`SELECT * FROM department`, (err, res) => {
     if (err) throw err;
@@ -465,7 +472,7 @@ removeDepartment = () => {
       };
       departments.push(departmentObject);
     });
-
+    // Inquirier prompts to specify which department will be removed
     inquirer
       .prompt({
         type: "list",
@@ -473,18 +480,21 @@ removeDepartment = () => {
         name: "deptToRemove",
         choices: departments,
       })
+    //   Using response - run SQL command to remove the department using the value from the response
       .then((response) => {
         const SQLquery = `DELETE FROM department WHERE id = ?`;
         db.query(SQLquery, [response.deptToRemove], (err, res) => {
           if (err) throw err;
-          console.log(`Succesfully removed ${response.deptToRemove}`);
-          promptQuestions();
+          console.log(`Succesfully removed ${response.deptToRemove}. ${res.affectedRows} record(s) updated.`);
+        //   Function to run intial useroptions
+          userOptions();
         });
       });
   });
 };
-
+// Function to remove a role
 removeRole = () => {
+    // Run SQL query to get a list of all roles and push into an array of roles to be used for inquirer list choices
   let roleOptions = [];
   db.query(`SELECT * FROM role`, (err, res) => {
     if (err) throw err;
@@ -494,6 +504,7 @@ removeRole = () => {
         value: id,
       });
     });
+    // Inquirer prompt questions to specify details of role to be removed
     inquirer
       .prompt([
         {
@@ -503,18 +514,21 @@ removeRole = () => {
           choices: roleOptions,
         },
       ])
+    //   Use response to run a SQL command to remove the specified role
       .then((response) => {
         const SQLquery = `DELETE FROM role WHERE id = ?`;
         db.query(SQLquery, [response.roleToRemove], (err, res) => {
           if (err) throw err;
-          console.log(`\n Succesfully removed ${response.roleToRemove} \n`);
-          promptQuestions();
+          console.log(`\nSuccesfully removed ${response.roleToRemove}. ${res.affectedRows} record(s) updated. \n`);
+    //   Function to run intial useroptions
+          userOptions();
         });
       });
   });
 };
-
+// Function to remove an employee
 removeEmployee = () => {
+// Run SQL query to get a list of all employees and push into an array of employees to be used for inquirer list choices
   let employeeOptions = [];
   db.query(`SELECT * FROM employee`, (err, res) => {
     if (err) throw err;
@@ -524,27 +538,30 @@ removeEmployee = () => {
         value: id,
       });
     });
-    console.log(employeeOptions);
+// Inquirer prompt questions to specify details of employee to be removed
     inquirer
       .prompt([
         {
           type: "list",
-          message: "Which employee do you want to remove?",
+          message: "Which Employee Would You Like To Remove?",
           name: "employeeToRemove",
           choices: employeeOptions,
         },
       ])
+//   Use response to run a SQL command to remove the specified employee
       .then((response) => {
         const SQLquery = `DELETE FROM employee WHERE id = ?`;
         db.query(SQLquery, [response.employeeToRemove], (err, res) => {
           if (err) throw err;
-          console.log(`\n Succesfully removed ${response.employeeOptions} \n`);
-          promptQuestions();
+          console.log(`\nSuccesfully removed ${response.employeeOptions}. ${res.affectedRows} record(s) updated. \n`);
+    //   Function to run intial useroptions
+          userOptions();
         });
       });
   });
 };
 
+// Function to view departments total utilized budget 
 viewDepartmentBudget = () => {
   db.query(
     `
@@ -559,10 +576,9 @@ viewDepartmentBudget = () => {
     `,
     (err, res) => {
       if (err) throw err;
-      console.log("\n Current Department Budgets\n");
+      console.log("\nCurrent Department Budgets\n");
       console.table(res);
-      console.log("\n =================== \n");
-      promptQuestions();
+      userOptions();
     }
   );
 };
