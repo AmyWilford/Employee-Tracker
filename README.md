@@ -1,4 +1,4 @@
-# Scooby Gang Team Tracker:
+# Scooby Gang Team Database:
 
 ## Table of Contents:
 
