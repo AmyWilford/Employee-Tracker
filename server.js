@@ -252,21 +252,27 @@ let updateEmployeeRole = () => {
         .prompt([
           {
             type: "list",
-            message: "Which employee would you like to update?",
+            message: "Which Employee Would You Like To Update?",
             name: "employee",
             choices: employeeOptions,
           },
           {
             type: "list",
-            message: "Specify the new role",
+            message: "Specify The New Position",
             name: "role",
             choices: roleOptions,
+          },
+          {
+            type: "list",
+            message: "Specify The Manager for this Position",
+            name: "manager",
+            choices: employeeOptions,
           },
         ])
         //   Once prompts are asked - take response and run SQLquery with defined values in array created of response
         .then((response) => {
-          const SQLquery = `UPDATE employee SET role_id= ? WHERE id=?`;
-          db.query(SQLquery, [response.role, response.employee], (err, res) => {
+          const SQLquery = `UPDATE employee SET role_id= ?, manager_id= ? WHERE id=?`;
+          db.query(SQLquery, [response.role, response.manager, response.employee], (err, res) => {
             if (err) throw err;
             console.log(
               `\n Succefully updated role. ${res.affectedRows} record(s) updated.\n`
