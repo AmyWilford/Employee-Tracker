@@ -18,7 +18,7 @@ const db = mysql.createConnection(
 // Initial connection to database - launch figlet welcome message and launch userOptions()
 db.connect((err) => {
   if (err) throw err;
-  figlet("\nScooby Gang: \n Team Database\n", function (err, data) {
+  figlet("\nScooby Gang: \n Team Tracker\n", function (err, data) {
     if (err) {
       console.log("Something went wrong...");
       console.dir(err);
