@@ -15,6 +15,18 @@ FROM employee AS e
     ON department_id = department.id
     ORDER BY e.id;
 
+-- VIEW EMPLOYEES BY MANAGER
+SELECT CONCAT(m.first_name, ' ', m.last_name) AS 'Manager',
+    CONCAT(e.first_name, ' ', e.last_name) AS 'Employee Name',
+    e.manager_id AS 'Manager ID'
+    FROM employee AS e
+    LEFT JOIN employee as m ON e.manager_id = m.id
+    JOIN role
+    ON e.role_id = role.id
+    WHERE e.manager_id IS NOT NULL
+    ORDER BY m.id;
+    
+
 -- ADD EMPLOYEE:
 -- THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
 INSERT INTO employee (first_name, last_name, role_id, manager_id) 
@@ -48,22 +60,24 @@ VALUES(?,?,?)
 INSERT INTO department(name)
 VALUES  ('department');
 
--- VIEW EMPLOYEES BY MANAGER
+
 
 
 -- VIEW EMPLOYEE DEPARTMENTS
-SELECT employee.last_name AS 'Last Name', 
-    employee.first_name AS 'First Name', 
-    department.name AS 'Department'
+SELECT  department.name AS 'Department', 
+    CONCAT( last_name,' ', first_name) AS 'Employee Name'
     FROM employee
     JOIN role ON employee.role_id = role.id
     JOIN department ON role.department_id = department.id
-    ORDER BY employee.last_name;
+    ORDER BY department.name;
 
 
 -- VIEW DEPARTMENT BUDGETS
--- SELECT department_id AS 'Department ID',
---     SUM(salary) AS 'Total Salary Costs'
---     FROM role
---     WHERE department name
+SELECT department_id AS 'Department ID',
+    department.name AS 'Department',
+    SUM(salary) AS 'Total Salary Costs'
+    FROM role
+    LEFT JOIN department ON role.department_id = department.id
+    LEFT JOIN employee ON employee.role_id = role.id
+    GROUP BY department_id;
 
