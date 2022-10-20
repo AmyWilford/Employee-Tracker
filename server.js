@@ -233,7 +233,20 @@ let updateEmployeeRole = () => {
         name: first_name + " " + last_name,
         value: id,
       });
+    
     });
+    let managerOptions = [
+        {
+          name: "none",
+          value: 0,
+        },
+      ];
+    res.forEach(({ first_name, last_name, id }) => {
+        managerOptions.push({
+          name: first_name + " " + last_name,
+          value: id,
+        });
+      });
     // Query to get list of all roles and push in to an array of role options to be used as inquirer list choices
     db.query(`SELECT * FROM role`, (err, res) => {
       if (err) throw err;
@@ -263,7 +276,7 @@ let updateEmployeeRole = () => {
             type: "list",
             message: "Specify The Manager for this Position",
             name: "manager",
-            choices: employeeOptions,
+            choices: managerOptions,
           },
         ])
         //   Once prompts are asked - take response and run SQLquery with defined values in array created of response
