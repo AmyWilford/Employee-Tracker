@@ -52,13 +52,12 @@ const userOptions = () => {
           "Remove Employee",
           "Remove Department",
           "Remove Role",
-          "Exit",
         ],
       },
     ])
     .then(function (response) {
       const answer = response.options;
-        // Run related function based on userOptions() response
+      // Run related function based on userOptions() response
       if (answer === "View All Employees") {
         viewAllEmployees();
       }
@@ -98,9 +97,6 @@ const userOptions = () => {
       if (answer === "Remove Role") {
         removeRole();
       }
-      if (answer === "Quit") {
-        quit();
-      }
     });
 };
 
@@ -136,10 +132,12 @@ let addEmployee = () => {
   // Get all employees to make choice of employee manager
   db.query(`SELECT * FROM employee`, (err, res) => {
     if (err) throw err;
-    let managerOptions = [{
-        name: 'none', 
-        value: 0
-    }];
+    let managerOptions = [
+      {
+        name: "none",
+        value: 0,
+      },
+    ];
     // loop through results of all employees and push specified information into array of manager options
     res.forEach(({ first_name, last_name, id }) => {
       managerOptions.push({
@@ -152,7 +150,7 @@ let addEmployee = () => {
     let roleOptions = [];
     db.query(`Select * FROM role`, (err, res) => {
       if (err) throw err;
-    // loop through results of roles and push specified information into role options array
+      // loop through results of roles and push specified information into role options array
       res.forEach(({ title, id }) => {
         roleOptions.push({
           name: title,
@@ -201,7 +199,7 @@ let addEmployee = () => {
           choices: managerOptions,
         },
       ])
-    //   Once prompts are asked - take response and run SQLquery with defined values in array created of response
+      //   Once prompts are asked - take response and run SQLquery with defined values in array created of response
       .then((response) => {
         const SQLquery = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
         db.query(
@@ -215,7 +213,7 @@ let addEmployee = () => {
           (err, res) => {
             if (err) throw err;
             console.log(
-              `\n Succesfully added ${response.firstname} ${response.lastname} to roster \n`
+              `\n>>>Succesfully added ${response.firstname} ${response.lastname} to database \n`
             );
             // Run userOptions() to go back to initial list of database options
             userOptions();
@@ -227,7 +225,7 @@ let addEmployee = () => {
 
 // Function to update Employee Role
 let updateEmployeeRole = () => {
-    // Query to get list of all employees and push in to an array of employee options to be used as inquirer list choices
+  // Query to get list of all employees and push in to an array of employee options to be used as inquirer list choices
   db.query(`SELECT * FROM employee`, (err, res) => {
     if (err) throw err;
     let employeeOptions = [];
@@ -247,7 +245,7 @@ let updateEmployeeRole = () => {
           value: id,
         });
       });
-    // Inquirer prompts to collect new employee information
+      // Inquirer prompts to collect new employee information
       inquirer
         .prompt([
           {
@@ -272,14 +270,18 @@ let updateEmployeeRole = () => {
         //   Once prompts are asked - take response and run SQLquery with defined values in array created of response
         .then((response) => {
           const SQLquery = `UPDATE employee SET role_id= ?, manager_id= ? WHERE id=?`;
-          db.query(SQLquery, [response.role, response.manager, response.employee], (err, res) => {
-            if (err) throw err;
-            console.log(
-              `\n Succefully updated role. ${res.affectedRows} record(s) updated.\n`
-            );
-            // Run userOptions() to go back to initial list of database options
-            userOptions();
-          });
+          db.query(
+            SQLquery,
+            [response.role, response.manager, response.employee],
+            (err, res) => {
+              if (err) throw err;
+              console.log(
+                `\n Succefully updated role. ${res.affectedRows} record(s) updated.\n`
+              );
+              // Run userOptions() to go back to initial list of database options
+              userOptions();
+            }
+          );
         });
     });
   });
@@ -305,7 +307,7 @@ let viewAllRoles = () => {
 
 // Function to add a role
 let addRole = () => {
-// SQL query to get all departments and push into an array of department options to be used in inquirer list choices
+  // SQL query to get all departments and push into an array of department options to be used in inquirer list choices
   let departments = [];
   db.query(`SELECT * FROM department`, (err, res) => {
     if (err) throw err;
@@ -358,7 +360,7 @@ let addRole = () => {
           choices: departments,
         },
       ])
-    // Once questions are answered - take the response and run the specified SQL query using the values in the below response array
+      // Once questions are answered - take the response and run the specified SQL query using the values in the below response array
       .then((response) => {
         const SQLquery = `INSERT INTO role (title, salary, department_id) VALUES(?,?,?)`;
         db.query(
@@ -366,7 +368,9 @@ let addRole = () => {
           [response.roleTitle, response.roleSalary, response.department],
           (err, res) => {
             if (err) throw err;
-            console.log(`\nSuccesfully add ${response.roleTitle}\n`);
+            console.log(
+              `\n>>>Succesfully added ${response.roleTitle} to database\n`
+            );
             userOptions();
           }
         );
@@ -392,7 +396,7 @@ let viewAllDepartments = () => {
 
 // Function to add a new Department
 let addDepartment = () => {
-    // Inquirer Prompts to collect details for new department
+  // Inquirer Prompts to collect details for new department
   inquirer
     .prompt([
       {
@@ -414,9 +418,7 @@ let addDepartment = () => {
       let value = response.deptName;
       db.query(SQLquery, value, (err, res) => {
         if (err) throw err;
-        console.log(
-          `Successfully inserted ${response.deptName} into database.`
-        );
+        console.log(`>>>Successfully added ${response.deptName} to database.`);
         // Function to launch initial usuer Options
         userOptions();
       });
@@ -424,8 +426,8 @@ let addDepartment = () => {
 };
 
 // Function to view all employees linked to each manager
-viewManagerEmployees = () =>{
-    const SQLquery = `
+viewManagerEmployees = () => {
+  const SQLquery = `
     SELECT e.manager_id AS 'Manager ID',
     CONCAT(m.first_name, ' ', m.last_name) AS 'Manager',
     CONCAT(e.first_name, ' ', e.last_name) AS 'Employee Name'
@@ -436,14 +438,14 @@ viewManagerEmployees = () =>{
     WHERE e.manager_id IS NOT NULL
     ORDER BY m.id;
     `;
-    db.query(SQLquery, (err, res) => {
-        if (err) throw err;
-        console.log(`\n All Manager Employees`);
-        console.table(res);
-        console.log("\n =================== \n");
-        userOptions();
-    })
-}
+  db.query(SQLquery, (err, res) => {
+    if (err) throw err;
+    console.log(`\n All Manager Employees`);
+    console.table(res);
+    console.log("\n =================== \n");
+    userOptions();
+  });
+};
 
 // Function to view all employees under each department
 viewEmployeeDepartment = () => {
@@ -466,7 +468,7 @@ viewEmployeeDepartment = () => {
 
 // Function to remove a department
 removeDepartment = () => {
-    // Run a query to get a full list of departments and push into an array to be used for inquirer list choices
+  // Run a query to get a full list of departments and push into an array to be used for inquirer list choices
   let departments = [];
   db.query(`SELECT * FROM department`, (err, res) => {
     if (err) throw err;
@@ -486,13 +488,15 @@ removeDepartment = () => {
         name: "deptToRemove",
         choices: departments,
       })
-    //   Using response - run SQL command to remove the department using the value from the response
+      //   Using response - run SQL command to remove the department using the value from the response
       .then((response) => {
         const SQLquery = `DELETE FROM department WHERE id = ?`;
         db.query(SQLquery, [response.deptToRemove], (err, res) => {
           if (err) throw err;
-          console.log(`Succesfully removed ${response.deptToRemove}. ${res.affectedRows} record(s) updated.`);
-        //   Function to run intial useroptions
+          console.log(
+            `Succesfully removed ${response.deptToRemove}. ${res.affectedRows} record(s) updated.`
+          );
+          //   Function to run intial useroptions
           userOptions();
         });
       });
@@ -500,7 +504,7 @@ removeDepartment = () => {
 };
 // Function to remove a role
 removeRole = () => {
-    // Run SQL query to get a list of all roles and push into an array of roles to be used for inquirer list choices
+  // Run SQL query to get a list of all roles and push into an array of roles to be used for inquirer list choices
   let roleOptions = [];
   db.query(`SELECT * FROM role`, (err, res) => {
     if (err) throw err;
@@ -520,13 +524,15 @@ removeRole = () => {
           choices: roleOptions,
         },
       ])
-    //   Use response to run a SQL command to remove the specified role
+      //   Use response to run a SQL command to remove the specified role
       .then((response) => {
         const SQLquery = `DELETE FROM role WHERE id = ?`;
         db.query(SQLquery, [response.roleToRemove], (err, res) => {
           if (err) throw err;
-          console.log(`\nSuccesfully removed ${response.roleToRemove}. ${res.affectedRows} record(s) updated. \n`);
-    //   Function to run intial useroptions
+          console.log(
+            `\nSuccesfully removed ${response.roleToRemove}. ${res.affectedRows} record(s) updated. \n`
+          );
+          //   Function to run intial useroptions
           userOptions();
         });
       });
@@ -534,7 +540,7 @@ removeRole = () => {
 };
 // Function to remove an employee
 removeEmployee = () => {
-// Run SQL query to get a list of all employees and push into an array of employees to be used for inquirer list choices
+  // Run SQL query to get a list of all employees and push into an array of employees to be used for inquirer list choices
   let employeeOptions = [];
   db.query(`SELECT * FROM employee`, (err, res) => {
     if (err) throw err;
@@ -544,7 +550,7 @@ removeEmployee = () => {
         value: id,
       });
     });
-// Inquirer prompt questions to specify details of employee to be removed
+    // Inquirer prompt questions to specify details of employee to be removed
     inquirer
       .prompt([
         {
@@ -554,20 +560,22 @@ removeEmployee = () => {
           choices: employeeOptions,
         },
       ])
-//   Use response to run a SQL command to remove the specified employee
+      //   Use response to run a SQL command to remove the specified employee
       .then((response) => {
         const SQLquery = `DELETE FROM employee WHERE id = ?`;
         db.query(SQLquery, [response.employeeToRemove], (err, res) => {
           if (err) throw err;
-          console.log(`\nSuccesfully removed ${response.employeeOptions}. ${res.affectedRows} record(s) updated. \n`);
-    //   Function to run intial useroptions
+          console.log(
+            `\nSuccesfully removed ${response.employeeOptions}. ${res.affectedRows} record(s) updated. \n`
+          );
+          //   Function to run intial useroptions
           userOptions();
         });
       });
   });
 };
 
-// Function to view departments total utilized budget 
+// Function to view departments total utilized budget
 viewDepartmentBudget = () => {
   db.query(
     `
