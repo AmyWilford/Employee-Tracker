@@ -18,7 +18,7 @@ const db = mysql.createConnection(
 // Initial connection to database - launch figlet welcome message and launch userOptions()
 db.connect((err) => {
   if (err) throw err;
-  figlet("\nScooby Gang: \n Team Tracker\n", function (err, data) {
+  figlet("\nScooby Gang: \n Team Database\n", function (err, data) {
     if (err) {
       console.log("Something went wrong...");
       console.dir(err);
@@ -233,20 +233,19 @@ let updateEmployeeRole = () => {
         name: first_name + " " + last_name,
         value: id,
       });
-    
     });
     let managerOptions = [
-        {
-          name: "none",
-          value: 0,
-        },
-      ];
+      {
+        name: "none",
+        value: 0,
+      },
+    ];
     res.forEach(({ first_name, last_name, id }) => {
-        managerOptions.push({
-          name: first_name + " " + last_name,
-          value: id,
-        });
+      managerOptions.push({
+        name: first_name + " " + last_name,
+        value: id,
       });
+    });
     // Query to get list of all roles and push in to an array of role options to be used as inquirer list choices
     db.query(`SELECT * FROM role`, (err, res) => {
       if (err) throw err;
@@ -430,7 +429,9 @@ let addDepartment = () => {
       let value = response.deptName;
       db.query(SQLquery, value, (err, res) => {
         if (err) throw err;
-        console.log(`\n>>>Successfully added ${response.deptName} to database.\n`);
+        console.log(
+          `\n>>>Successfully added ${response.deptName} to database.\n`
+        );
         // Function to launch initial usuer Options
         userOptions();
       });
@@ -504,7 +505,7 @@ removeDepartment = () => {
         db.query(SQLquery, [response.deptToRemove], (err, res) => {
           if (err) throw err;
           console.log(
-            `\n>>>Succesfully removed ${response.deptToRemove}. ${res.affectedRows} record(s) updated.\n`
+            `\n>>>Succesfully removed Department. ${res.affectedRows} record(s) updated.\n`
           );
           //   Function to run intial user options
           userOptions();
@@ -540,7 +541,7 @@ removeRole = () => {
         db.query(SQLquery, [response.roleToRemove], (err, res) => {
           if (err) throw err;
           console.log(
-            `\n>>>Succesfully removed ${response.roleToRemove}. ${res.affectedRows} record(s) updated. \n`
+            `\n>>>Succesfully removed Role. ${res.affectedRows} record(s) updated. \n`
           );
           //   Function to run intial useroptions
           userOptions();
@@ -576,7 +577,7 @@ removeEmployee = () => {
         db.query(SQLquery, [response.employeeToRemove], (err, res) => {
           if (err) throw err;
           console.log(
-            `\n>>>Succesfully removed ${response.employeeOptions}. ${res.affectedRows} record(s) updated. \n`
+            `\n>>>Succesfully removed employee. ${res.affectedRows} record(s) updated. \n`
           );
           //   Function to run intial useroptions
           userOptions();
