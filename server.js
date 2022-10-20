@@ -3,7 +3,6 @@ const inquirer = require("inquirer");
 const mysql = require("mysql2");
 const ctable = require("console.table");
 const figlet = require("figlet");
-const { NONAME } = require("dns");
 
 // Establish database connection details
 const db = mysql.createConnection(
@@ -276,7 +275,7 @@ let updateEmployeeRole = () => {
             (err, res) => {
               if (err) throw err;
               console.log(
-                `\n Succefully updated role. ${res.affectedRows} record(s) updated.\n`
+                `\nSuccefully updated role. ${res.affectedRows} record(s) updated.\n\n`
               );
               // Run userOptions() to go back to initial list of database options
               userOptions();
@@ -369,7 +368,7 @@ let addRole = () => {
           (err, res) => {
             if (err) throw err;
             console.log(
-              `\n>>>Succesfully added ${response.roleTitle} to database\n`
+              `\n>>>Succesfully added ${response.roleTitle} to database\n\n`
             );
             userOptions();
           }
@@ -388,7 +387,7 @@ let viewAllDepartments = () => {
 
   db.query(SQLquery, (err, res) => {
     if (err) throw err;
-    console.log("\nAll Departments \n");
+    console.log("\nAll Departments: \n");
     console.table(res);
     userOptions();
   });
@@ -418,7 +417,7 @@ let addDepartment = () => {
       let value = response.deptName;
       db.query(SQLquery, value, (err, res) => {
         if (err) throw err;
-        console.log(`>>>Successfully added ${response.deptName} to database.`);
+        console.log(`\n>>>Successfully added ${response.deptName} to database.\n`);
         // Function to launch initial usuer Options
         userOptions();
       });
@@ -440,9 +439,8 @@ viewManagerEmployees = () => {
     `;
   db.query(SQLquery, (err, res) => {
     if (err) throw err;
-    console.log(`\n All Manager Employees`);
+    console.log(`\nAll Manager Employees:\n`);
     console.table(res);
-    console.log("\n =================== \n");
     userOptions();
   });
 };
@@ -459,9 +457,8 @@ viewEmployeeDepartment = () => {
         `;
   db.query(SQLquery, (err, res) => {
     if (err) throw err;
-    console.log(`\n Department Employees`);
+    console.log(`\nDepartment Employees:\n`);
     console.table(res);
-    console.log("\n =================== \n");
     userOptions();
   });
 };
@@ -494,9 +491,9 @@ removeDepartment = () => {
         db.query(SQLquery, [response.deptToRemove], (err, res) => {
           if (err) throw err;
           console.log(
-            `Succesfully removed ${response.deptToRemove}. ${res.affectedRows} record(s) updated.`
+            `\n>>>Succesfully removed ${response.deptToRemove}. ${res.affectedRows} record(s) updated.\n`
           );
-          //   Function to run intial useroptions
+          //   Function to run intial user options
           userOptions();
         });
       });
@@ -530,7 +527,7 @@ removeRole = () => {
         db.query(SQLquery, [response.roleToRemove], (err, res) => {
           if (err) throw err;
           console.log(
-            `\nSuccesfully removed ${response.roleToRemove}. ${res.affectedRows} record(s) updated. \n`
+            `\n>>>Succesfully removed ${response.roleToRemove}. ${res.affectedRows} record(s) updated. \n`
           );
           //   Function to run intial useroptions
           userOptions();
@@ -566,7 +563,7 @@ removeEmployee = () => {
         db.query(SQLquery, [response.employeeToRemove], (err, res) => {
           if (err) throw err;
           console.log(
-            `\nSuccesfully removed ${response.employeeOptions}. ${res.affectedRows} record(s) updated. \n`
+            `\n>>>Succesfully removed ${response.employeeOptions}. ${res.affectedRows} record(s) updated. \n`
           );
           //   Function to run intial useroptions
           userOptions();
@@ -590,7 +587,7 @@ viewDepartmentBudget = () => {
     `,
     (err, res) => {
       if (err) throw err;
-      console.log("\nCurrent Department Budgets\n");
+      console.log("\nCurrent Department Budgets:\n");
       console.table(res);
       userOptions();
     }
